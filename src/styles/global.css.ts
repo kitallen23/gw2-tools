@@ -1,4 +1,4 @@
-import { lineHeight, topbarHeight } from "@/styles/tokens.css";
+import { footerHeight, lineHeight, topbarHeight } from "@/styles/tokens.css";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 globalStyle(":root", {
@@ -43,4 +43,7 @@ globalStyle("h1", {
 export const radixTheme = style({
     paddingTop: topbarHeight,
     scrollPaddingTop: topbarHeight,
+
+    paddingBottom: footerHeight,
+    scrollPaddingBottom: footerHeight,
 });

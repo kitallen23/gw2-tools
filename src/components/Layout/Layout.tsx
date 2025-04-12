@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { HOMEPAGE } from "@/utils/constants";
 import Logo from "@/components/Logo/Logo";
 import {
+    attribution,
+    footer,
     header,
     headerContent,
     layoutWrapper,
@@ -11,9 +13,10 @@ import {
     pageContent,
     rightOptions,
 } from "@/components/Layout/Layout.css";
-import { Button, Container, Text } from "@radix-ui/themes";
+import { Button, Container, Flex, Text } from "@radix-ui/themes";
 import { useTheme } from "@/utils/useTheme";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import HeartIcon from "@/components/HeartIcon/HeartIcon";
 
 const Header = () => {
     const { mode, toggleMode } = useTheme();
@@ -60,6 +63,36 @@ const Header = () => {
     );
 };
 
+const Footer = () => {
+    return (
+        <div className={footer}>
+            <Container
+                style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    height: "100%",
+                }}
+                px="2"
+                pr="4"
+            >
+                <Flex align="center" justify="center">
+                    <div className={attribution}>
+                        {/* <Text size="1"> */}
+                        Made with&nbsp;
+                        <HeartIcon
+                            style={{
+                                fontSize: "0.875em",
+                            }}
+                        />
+                        &nbsp;by Woods to Eternity.9851
+                        {/* </Text> */}
+                    </div>
+                </Flex>
+            </Container>
+        </div>
+    );
+};
+
 const PageContent = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className={pageContent} id="page-content">
@@ -73,6 +106,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className={layoutWrapper}>
             <Header />
             <PageContent>{children}</PageContent>
+            <Footer />
         </div>
     );
 };

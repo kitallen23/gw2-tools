@@ -1,10 +1,5 @@
 import { style, globalStyle } from "@vanilla-extract/css";
-import { topbarHeight } from "@/styles/tokens.css";
-
-// Global styles
-globalStyle("radix-themes", {
-    padding: topbarHeight,
-});
+import { footerHeight, topbarHeight } from "@/styles/tokens.css";
 
 export const layoutWrapper = style({
     width: "100%",
@@ -24,6 +19,22 @@ export const header = style({
     height: topbarHeight,
     zIndex: 2,
     boxShadow: "var(--shadow-3)",
+});
+
+export const footer = style({
+    backgroundColor: "var(--gray-2)",
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    width: "100%",
+    height: footerHeight,
+    zIndex: 2,
+});
+
+export const attribution = style({
+    fontFamily: "monospace",
+    color: "var(--gray-10)",
+    fontSize: "0.65rem",
 });
 
 export const headerContent = style({
