@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 import { HOMEPAGE } from "@/utils/constants";
 import Logo from "@/components/Logo/Logo";
