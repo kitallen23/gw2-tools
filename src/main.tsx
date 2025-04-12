@@ -11,7 +11,7 @@ import "@/styles/global.css";
 import { ThemeProvider } from "@/utils/ThemeContext";
 
 import App from "@/App.tsx";
-import Logs from "@/pages/Logs/Logs";
+import Logs from "@/pages/Logfiles/LogfilePage";
 
 const router = createBrowserRouter([
     {

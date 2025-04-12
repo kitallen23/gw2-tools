@@ -2,7 +2,8 @@ import { footerHeight, lineHeight, topbarHeight } from "@/styles/tokens.css";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 globalStyle(":root", {
-    fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif",
+    fontFamily:
+        '"Noto Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
     lineHeight: 1.5,
     fontWeight: 400,
     colorScheme: "light dark",
@@ -22,7 +23,7 @@ globalStyle("*, *::before, *::after", {
 
 globalStyle("a", {
     fontWeight: 500,
-    color: "inherit",
+    color: "var(--gray-11)",
     textDecoration: "inherit",
 });
 
@@ -46,4 +47,20 @@ export const radixTheme = style({
 
     paddingBottom: footerHeight,
     scrollPaddingBottom: footerHeight,
+
+    vars: {
+        "--default-font-family":
+            '"Noto Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
+        "--heading-font-family":
+            '"Noto Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
+        "--code-font-family": '"Noto Sans Mono", monospace',
+    },
+});
+
+// Fix for a bug when nesting containers
+const containerSizes = [1, 2, 3, 4] as const;
+containerSizes.forEach(size => {
+    globalStyle(`.rt-Container.rt-r-size-${size} > .rt-ContainerInner`, {
+        maxWidth: `var(--container-${size}) !important`,
+    });
 });

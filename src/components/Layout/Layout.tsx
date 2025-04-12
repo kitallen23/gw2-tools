@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
-import { HOMEPAGE } from "@/utils/constants";
+import { GITHUB_URL, HOMEPAGE } from "@/utils/constants";
 import Logo from "@/components/Logo/Logo";
 import {
     attribution,
     footer,
+    githubLogo,
     header,
     headerContent,
     layoutWrapper,
@@ -15,7 +16,7 @@ import {
 } from "@/components/Layout/Layout.css";
 import { Button, Container, Flex, Text } from "@radix-ui/themes";
 import { useTheme } from "@/utils/useTheme";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { GitHubLogoIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import HeartIcon from "@/components/HeartIcon/HeartIcon";
 
 const Header = () => {
@@ -73,11 +74,10 @@ const Footer = () => {
                     height: "100%",
                 }}
                 px="2"
-                pr="4"
             >
-                <Flex align="center" justify="center">
+                <Flex align="center" justify="between">
+                    <div style={{ width: "28px", visibility: "hidden" }} />
                     <div className={attribution}>
-                        {/* <Text size="1"> */}
                         Made with&nbsp;
                         <HeartIcon
                             style={{
@@ -85,7 +85,26 @@ const Footer = () => {
                             }}
                         />
                         &nbsp;by Woods to Eternity.9851
-                        {/* </Text> */}
+                    </div>
+                    <div className={githubLogo}>
+                        <Link
+                            to={GITHUB_URL}
+                            aria-label="Visit GitHub repository"
+                            style={{
+                                color: "unset",
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Button
+                                aria-label="Visit GitHub repository"
+                                variant="ghost"
+                            >
+                                <GitHubLogoIcon width="12" height="12" />
+                            </Button>
+                        </Link>
                     </div>
                 </Flex>
             </Container>

@@ -11,6 +11,7 @@ export const layoutWrapper = style({
 export const pageContent = style({});
 
 export const header = style({
+    fontFamily: "var(--code-font-family)",
     backgroundColor: "var(--gray-2)",
     position: "fixed",
     top: 0,
@@ -32,9 +33,12 @@ export const footer = style({
 });
 
 export const attribution = style({
-    fontFamily: "monospace",
+    fontFamily: "var(--code-font-family)",
     color: "var(--gray-10)",
     fontSize: "0.65rem",
+});
+export const githubLogo = style({
+    color: "var(--gray-10)",
 });
 
 export const headerContent = style({
@@ -58,8 +62,11 @@ export const rightOptions = style({
     gap: "1em",
 });
 
-globalStyle(".rt-Button:where(.rt-r-size-2):where(.rt-variant-ghost)", {
-    vars: {
-        "--button-ghost-padding-y": "var(--space-2)",
-    },
-});
+globalStyle(
+    `${header} .rt-Button:where(.rt-r-size-2):where(.rt-variant-ghost)`,
+    {
+        vars: {
+            "--button-ghost-padding-y": "var(--space-2)",
+        },
+    }
+);
