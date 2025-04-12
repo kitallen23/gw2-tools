@@ -11,7 +11,7 @@ import "@/styles/global.css";
 import { ThemeProvider } from "@/utils/ThemeContext";
 
 import App from "@/App.tsx";
-import Home from "@/pages/Home/Home";
+import Logs from "@/pages/Logs/Logs";
 
 const router = createBrowserRouter([
     {
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "logs",
-                element: <Home />,
+                element: <Logs />,
             },
         ],
     },
