@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
-import { GITHUB_URL, HOMEPAGE } from "@/utils/constants";
+import { APP_VERSION, GITHUB_URL, HOMEPAGE } from "@/utils/constants";
 import Logo from "@/components/Logo/Logo";
 import {
     attribution,
@@ -13,6 +13,7 @@ import {
     logoLink,
     pageContent,
     rightOptions,
+    versionText,
 } from "@/components/Layout/Layout.css";
 import { Button, Container, Flex, Text } from "@radix-ui/themes";
 import { useTheme } from "@/utils/useTheme";
@@ -76,7 +77,7 @@ const Footer = () => {
                 px="2"
             >
                 <Flex align="center" justify="between">
-                    <div style={{ width: "28px", visibility: "hidden" }} />
+                    <div className={versionText}>{APP_VERSION}</div>
                     <div className={attribution}>
                         Made with&nbsp;
                         <HeartIcon

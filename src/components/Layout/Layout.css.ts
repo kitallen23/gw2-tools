@@ -32,6 +32,11 @@ export const footer = style({
     zIndex: 2,
 });
 
+export const versionText = style({
+    fontFamily: "var(--code-font-family)",
+    color: "var(--gray-8)",
+    fontSize: "0.65rem",
+});
 export const attribution = style({
     fontFamily: "var(--code-font-family)",
     color: "var(--gray-10)",
