@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FileField from "@/components/FileField/FileField";
 import {
     Box,
     Callout,
     Container,
+    Flex,
     Grid,
     Heading,
     Progress,
     Section,
     Select,
     Text,
+    TextField,
 } from "@radix-ui/themes";
 import { Form } from "radix-ui";
 import { useGetLog } from "@/api/uploadFile";
@@ -19,16 +21,54 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 type ToolType = "health-percent";
 const TOOL_TYPE_OPTIONS = { "health-percent": "Health Threshold Display" };
+const DEBOUNCE_MS = 500;
+const BASE_REPORT_URL = "https://dps.report/";
 
 function Logs() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    // reportUrl holds the raw input string
+    const [reportUrl, setReportUrl] = useState<string>("");
+    // url holds a valid DPS report URL
+    const [url, setUrl] = useState<string>("");
+
     const [toolType, setToolType] = useState<ToolType>("health-percent");
 
-    const onDrop = (acceptedFiles: File[]) => {
-        setSelectedFile(acceptedFiles[0]);
+    const { data, isLoading, error } = useGetLog(selectedFile, url);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            // Update threshold only if the parsed input is a valid number
+            if (
+                reportUrl.startsWith(BASE_REPORT_URL) &&
+                reportUrl.length > BASE_REPORT_URL.length
+            ) {
+                setUrl(reportUrl);
+                setSelectedFile(null);
+            }
+        }, DEBOUNCE_MS);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [reportUrl]);
+
+    const handleReportUrlChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setReportUrl(event.target.value);
     };
 
-    const { data, isLoading, error } = useGetLog(selectedFile);
+    const handleFileFieldChange = (acceptedFiles: File[]) => {
+        if (acceptedFiles.length) {
+            setSelectedFile(acceptedFiles[0]);
+            setReportUrl("");
+            setUrl("");
+        } else {
+            setSelectedFile(null);
+            setReportUrl("");
+            setUrl("");
+        }
+    };
 
     return (
         <Section size="2">
@@ -41,6 +81,23 @@ function Logs() {
                     </Container>
 
                     <Container size="2">
+                        <TextField.Root
+                            value={reportUrl}
+                            onChange={handleReportUrlChange}
+                            placeholder="Enter DPS report URL"
+                        />
+
+                        <Flex justify="center" py="1">
+                            <Text
+                                style={{
+                                    color: "var(--gray-10)",
+                                }}
+                                size="1"
+                            >
+                                — or —
+                            </Text>
+                        </Flex>
+
                         <Form.Root>
                             <div
                                 style={{
@@ -49,7 +106,7 @@ function Logs() {
                             >
                                 <FileField
                                     file={selectedFile}
-                                    onDrop={onDrop}
+                                    onDrop={handleFileFieldChange}
                                 />
                             </div>
                         </Form.Root>

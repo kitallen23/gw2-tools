@@ -18,7 +18,8 @@ interface UploadResponse {
  */
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export function useGetLog<T = any>(
-    file: File | null | undefined
+    file: File | null | undefined,
+    url: string | undefined
 ): UploadState<T> {
     const [uploadState, setUploadState] = useState<UploadState<T>>({
         data: null,
@@ -27,50 +28,80 @@ export function useGetLog<T = any>(
     });
 
     useEffect(() => {
-        if (!file) {
+        if (!file && !url) {
             setUploadState({ data: null, isLoading: false, error: null });
             return;
         }
 
-        const upload = async () => {
-            setUploadState({ data: null, isLoading: true, error: null });
-            const formData = new FormData();
-            formData.append("file", file);
-            const uploadUrl =
-                "https://dps.report/uploadContent?json=1&generator=ei";
-            const jsonUrl = "https://dps.report/getJson";
+        let upload;
+        if (file) {
+            upload = async () => {
+                setUploadState({ data: null, isLoading: true, error: null });
+                const formData = new FormData();
+                formData.append("file", file);
+                const uploadUrl =
+                    "https://dps.report/uploadContent?json=1&generator=ei";
+                const jsonUrl = "https://dps.report/getJson";
 
-            try {
-                const response = await ky
-                    .post(uploadUrl, {
-                        body: formData,
-                    })
-                    .json<UploadResponse>();
+                try {
+                    const response = await ky
+                        .post(uploadUrl, {
+                            body: formData,
+                        })
+                        .json<UploadResponse>();
 
-                const rawJson = await ky
-                    .get(`${jsonUrl}?permalink=${response.permalink}`)
-                    .json<T>();
+                    const rawJson = await ky
+                        .get(`${jsonUrl}?permalink=${response.permalink}`)
+                        .json<T>();
 
-                setUploadState({
-                    data: rawJson,
-                    isLoading: false,
-                    error: null,
-                });
-            } catch (error) {
-                console.error("Upload failed:", error);
-                setUploadState({
-                    data: null,
-                    isLoading: false,
-                    error:
-                        error instanceof Error
-                            ? error
-                            : new Error("Upload failed"),
-                });
-            }
-        };
+                    setUploadState({
+                        data: rawJson,
+                        isLoading: false,
+                        error: null,
+                    });
+                } catch (error) {
+                    console.error("Upload failed:", error);
+                    setUploadState({
+                        data: null,
+                        isLoading: false,
+                        error:
+                            error instanceof Error
+                                ? error
+                                : new Error("Upload failed"),
+                    });
+                }
+            };
+        } else {
+            upload = async () => {
+                setUploadState({ data: null, isLoading: true, error: null });
+                const jsonUrl = "https://dps.report/getJson";
+
+                try {
+                    const rawJson = await ky
+                        .get(`${jsonUrl}?permalink=${url}`)
+                        .json<T>();
+
+                    setUploadState({
+                        data: rawJson,
+                        isLoading: false,
+                        error: null,
+                    });
+                } catch (error) {
+                    console.error("Upload failed:", error);
+                    setUploadState({
+                        data: null,
+                        isLoading: false,
+                        error:
+                            error instanceof Error
+                                ? error
+                                : new Error("Upload failed"),
+                    });
+                }
+            };
+        }
 
         upload();
-    }, [file]); // Re-run effect when the file object changes
+    }, [file, url]);
 
     return uploadState;
 }

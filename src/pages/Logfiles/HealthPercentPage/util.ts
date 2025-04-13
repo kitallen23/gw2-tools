@@ -1,3 +1,11 @@
+import {
+    HealthData,
+    ParsedHealthData,
+    ParsedHealthDataPoint,
+    ParsedPhaseObject,
+    ParsedPlayerObject,
+} from "@/pages/Logfiles/HealthPercentPage/types";
+
 /**
  * Finds the percentage value at a specific time based on the data points.
  * Assumes data is sorted by timestamp.
@@ -71,82 +79,45 @@ function calculateDurationAboveThreshold(
     return durationAboveThreshold;
 }
 
-type PlayersObject = {
-    name: string;
-    account: string;
-    healthPercents: [number, number][];
-    profession: string;
-    group: number;
-    hasCommanderTag: boolean;
-};
-type PhasesObject = {
-    name: string;
-    start: number;
-    end: number;
-    breakbarPhase: boolean;
-};
-export type HealthData = {
-    players: PlayersObject[];
-    phases: PhasesObject[];
-    durationMS: number;
-};
-
-type ParsedPlayersObject = {
-    name: string;
-    account: string;
-    profession: string;
-    group: number;
-    hasCommanderTag: boolean;
-};
-type ParsedHealthDataPoint = {
-    label: string;
-    isPlayer: boolean;
-    healthPercents: [number, number][];
-    msAboveThreshold: number;
-    percentAboveThreshold: number;
-};
-type ParsedPhaseObject = {
-    name: string;
-    start: number;
-    end: number;
-    breakbarPhase: boolean;
-    healthData: ParsedHealthDataPoint[];
-};
-export type ParsedHealthData = {
-    players: ParsedPlayersObject[];
-    phases: ParsedPhaseObject[];
-    duration: number;
-};
-
 export function extractHealthPercentages(
     json: HealthData,
     threshold: number
 ): ParsedHealthData {
-    // TODO: Remove me
-    // console.log(`json: `, json);
     const phaseDataPoints: ParsedPhaseObject[] = [];
+    const players: ParsedPlayerObject[] = json.players.map(player => ({
+        account: player.account,
+        name: player.name,
+        profession: player.profession,
+        group: player.group,
+        hasCommanderTag: player.hasCommanderTag,
+    }));
 
     json.phases.forEach(phase => {
         const { name, start, end, breakbarPhase } = phase;
         const phaseHealthData: ParsedHealthDataPoint[] = [];
 
         json.players.forEach(player => {
-            const healthDataPercentagesForThisPlayer: [number, number][] = [];
+            const { account, healthPercents } = player;
+            const initialHealthValue = getValueAtTime(healthPercents, start);
+
+            const healthDataPercentagesForThisPlayer: [number, number][] = [
+                [start, initialHealthValue],
+            ];
+
             player.healthPercents.every(([ms, percent]) => {
                 if (ms > phase.end) {
                     // We're now "after" this phase, so break loop
                     return false;
-                } else if (ms >= phase.start) {
+                } else if (ms > phase.start) {
                     healthDataPercentagesForThisPlayer.push([ms, percent]);
                     return true;
                 } else {
-                    // E.g. ms is less than the start of this phase, so just
-                    // continue
+                    // E.g. ms is less than or equal to the start of this phase,
+                    // so just continue
                     return true;
                 }
             });
 
-            const { account } = player;
             const msAboveThreshold = calculateDurationAboveThreshold(
                 healthDataPercentagesForThisPlayer,
                 start,
@@ -169,18 +140,119 @@ export function extractHealthPercentages(
             });
         });
 
+        const sortedPhaseHealthData = phaseHealthData.sort(
+            (a, b) => b.msAboveThreshold - a.msAboveThreshold
+        );
+
         phaseDataPoints.push({
             name,
             start,
             end,
             breakbarPhase,
-            healthData: phaseHealthData,
+            healthData: sortedPhaseHealthData,
         });
     });
 
     return {
-        players: [],
+        players,
         phases: phaseDataPoints,
         duration: json.durationMS,
     };
+}
+
+export function getTotalAverageHealthAboveThreshold(
+    phase: ParsedPhaseObject
+): [number, number] {
+    const count = phase.healthData.length;
+    if (!count) {
+        return [0, 0];
+    }
+
+    const totalPercentAboveThreshold = phase.healthData.reduce(
+        (dataSum, dataPoint) => dataSum + dataPoint.percentAboveThreshold,
+        0
+    );
+    const totalMSAboveThreshold = phase.healthData.reduce(
+        (dataSum, dataPoint) => dataSum + dataPoint.msAboveThreshold,
+        0
+    );
+    return [totalPercentAboveThreshold / count, totalMSAboveThreshold];
+}
+
+export function getSubgroupHealthData(
+    healthData: ParsedHealthDataPoint[],
+    players: ParsedPlayerObject[]
+): Record<number, ParsedHealthDataPoint[]> {
+    const subgroups: Record<number, ParsedHealthDataPoint[]> = {};
+    healthData.forEach(item => {
+        if (!item.isPlayer) {
+            return;
+        }
+        const player = players.find(p => p.account === item.label);
+        if (!player) {
+            return;
+        }
+
+        if (subgroups[player.group]) {
+            subgroups[player.group].push(item);
+        } else {
+            subgroups[player.group] = [item];
+        }
+    });
+    return subgroups;
+}
+
+// Number 1: group number
+// Number 2: average time as percentage
+// Number 3: average time as milliseconds
+export function getSubgroupAverageHealthAboveThreshold(
+    subgroups: Record<number, ParsedHealthDataPoint[]>
+): [number, [number, number]][] {
+    const subgroupHealthAboveThresholdObj: Record<number, [number, number]> =
+        {};
+
+    Object.entries(subgroups).forEach(([group, data]) => {
+        const count = data.length;
+        if (!count) {
+            return;
+        }
+
+        const percentSum = data.reduce(
+            (dataSum, dataPoint) => dataSum + dataPoint.percentAboveThreshold,
+            0
+        );
+        const msSum = data.reduce(
+            (dataSum, dataPoint) => dataSum + dataPoint.msAboveThreshold,
+            0
+        );
+
+        subgroupHealthAboveThresholdObj[+group] = [
+            percentSum / count,
+            msSum / count,
+        ];
+    });
+
+    const subgroupPercentAboveThreshold = Object.entries(
+        subgroupHealthAboveThresholdObj
+    )
+        .map(([key, value]): [number, [number, number]] => [+key, value])
+        .sort(([, valueA], [, valueB]) => valueB[0] - valueA[0]);
+
+    return subgroupPercentAboveThreshold;
+}
+
+/**
+ * Converts milliseconds to a formatted string (e.g., "3m 10s", "55s", "61m").
+ * @param ms - The duration in milliseconds.
+ * @returns The formatted duration string.
+ */
+export function formatDuration(ms: number): string {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    if (minutes > 0) {
+        return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+    }
+    return `${seconds}s`;
 }

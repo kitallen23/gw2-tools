@@ -12,7 +12,7 @@ const RangeProgressBar: React.FC<RangeProgressBarProps> = ({
     min,
     max,
     total = 100,
-    color = "var(--gray-10)",
+    color = "var(--accent-10)",
 }) => {
     // Calculate percentage values
     const minPercent = (min / total) * 100;

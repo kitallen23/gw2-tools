@@ -1,9 +1,3 @@
-import RangeProgressBar from "@/components/RangeProgressBar/RangeProgressBar";
-import {
-    extractHealthPercentages,
-    HealthData,
-    ParsedHealthData,
-} from "@/pages/Logfiles/HealthPercentPage/util";
 import {
     Container,
     Flex,
@@ -15,24 +9,37 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import RangeProgressBar from "@/components/RangeProgressBar/RangeProgressBar";
+import EncounterInfo from "@/pages/Logfiles/HealthPercentPage/EncounterInfo";
+import DataDisplay from "@/pages/Logfiles/HealthPercentPage/DataDisplay/DataDisplay";
+import { extractHealthPercentages } from "@/pages/Logfiles/HealthPercentPage/util";
+import {
+    EncounterData,
+    ParsedHealthData,
+} from "@/pages/Logfiles/HealthPercentPage/types";
+
 const DEFAULT_THRESHOLD = 90;
 const DEBOUNCE_MS = 500;
 
 interface HealthPercentPageProps {
-    json: HealthData;
+    json: EncounterData;
 }
 
 const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
+    const [data, setData] = useState<ParsedHealthData | undefined>();
     const [phaseValue, setPhaseValue] = useState<string>("");
     const [phaseOptions, setPhaseOptions] = useState<string[]>([]);
+    const [tabValue, setTabValue] = useState<string>("total");
 
     // thresholdInput holds the raw input value (string)
     const [thresholdInput, setThresholdInput] = useState<string>("90");
-
     // threshold holds the validated and debounced number
     const [threshold, setThreshold] = useState<number>(DEFAULT_THRESHOLD);
 
-    const [data, setData] = useState<ParsedHealthData | undefined>();
+    const phase = useMemo(
+        () => data?.phases.find(phase => phase.name === phaseValue),
+        [phaseValue, data]
+    );
 
     // Debounce and validate the threshold input
     useEffect(() => {
@@ -68,18 +75,11 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
 
     useEffect(() => {
         const healthData = extractHealthPercentages(json, threshold);
-        // TODO: Remove me
-        // console.log(`healthData: `, healthData);
 
         setPhaseValue(healthData.phases?.[0].name || "");
         setPhaseOptions(healthData.phases.map(({ name }) => name));
         setData(healthData);
     }, [json, threshold]);
-
-    const phase = useMemo(
-        () => data?.phases.find(phase => phase.name === phaseValue),
-        [phaseValue, data]
-    );
 
     return (
         <>
@@ -99,8 +99,13 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
                 </Text>
             </Container>
 
-            {data ? (
-                <Container size="3">
+            <Container size="2">
+                <EncounterInfo json={json} />
+            </Container>
+
+            {data && phase ? (
+                // TODO: Change this to size 3 when creating graph
+                <Container size="2">
                     <Grid gap="4">
                         <Flex
                             align="center"
@@ -156,9 +161,16 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
                         </Flex>
 
                         <RangeProgressBar
-                            min={phase!.start}
-                            max={phase!.end}
+                            min={phase.start}
+                            max={phase.end}
                             total={data.duration}
+                        />
+
+                        <DataDisplay
+                            players={data.players}
+                            phase={phase}
+                            value={tabValue}
+                            setValue={setTabValue}
                         />
                     </Grid>
                 </Container>
