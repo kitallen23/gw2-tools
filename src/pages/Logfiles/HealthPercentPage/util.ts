@@ -5,6 +5,7 @@ import {
     ParsedPhaseObject,
     ParsedPlayerObject,
 } from "@/pages/Logfiles/HealthPercentPage/types";
+import { nanoid } from "nanoid";
 
 /**
  * Finds the percentage value at a specific time based on the data points.
@@ -145,6 +146,7 @@ export function extractHealthPercentages(
         );
 
         phaseDataPoints.push({
+            id: `${name}-${nanoid(4)}`,
             name,
             start,
             end,

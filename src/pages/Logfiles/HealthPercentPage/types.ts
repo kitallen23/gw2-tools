@@ -49,6 +49,7 @@ export type ParsedPhaseObject = {
     end: number;
     breakbarPhase: boolean;
     healthData: ParsedHealthDataPoint[];
+    id: string;
 };
 export type ParsedHealthData = {
     players: ParsedPlayerObject[];

@@ -42,6 +42,7 @@ const DataDisplay = ({
                         percentAboveThreshold,
                         msAboveThreshold,
                         isPlayer: true,
+                        value: player.account,
                     });
                 }
             }
@@ -53,7 +54,7 @@ const DataDisplay = ({
         subgroupThresholdData.forEach(
             ([groupKey, [averagePercent, averageMS]]) => {
                 tabItems.unshift({
-                    account: `subgroup-${groupKey}`,
+                    value: `subgroup-${groupKey}`,
                     name: `Group ${groupKey}`,
                     profession: null,
                     group: null,
@@ -68,7 +69,7 @@ const DataDisplay = ({
         const [totalPercentAboveThreshold, totalMSAboveThreshold] =
             getTotalAverageHealthAboveThreshold(phase);
         tabItems.unshift({
-            account: "total",
+            value: "total",
             name: "Total",
             profession: null,
             group: null,
@@ -95,9 +96,9 @@ const DataDisplay = ({
             >
                 {tabs.map((item: TabItem) => (
                     <TabsPrimitive.Trigger
-                        value={item.account}
+                        value={item.value}
                         className={styles.trigger}
-                        key={item.account}
+                        key={item.value}
                     >
                         <div className={styles.triggerContent}>
                             <Grid columns="1fr auto">
@@ -132,7 +133,7 @@ const DataDisplay = ({
             </TabsPrimitive.List>
 
             {tabs.map((item: TabItem) => (
-                <DataSection key={item.account} item={item} phase={phase} />
+                <DataSection key={item.value} item={item} phase={phase} />
             ))}
         </TabsPrimitive.Root>
     );

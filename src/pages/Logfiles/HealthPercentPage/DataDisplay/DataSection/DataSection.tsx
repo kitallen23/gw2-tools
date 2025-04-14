@@ -23,8 +23,8 @@ const DataSection = ({ item, phase }: DataSectionProps) => {
     );
     return (
         <TabsPrimitive.Content
-            key={item.account}
-            value={item.account}
+            key={item.value}
+            value={item.value}
             className={styles.content}
         >
             <Flex justify="start">
