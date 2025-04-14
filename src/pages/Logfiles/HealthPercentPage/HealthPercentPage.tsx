@@ -28,7 +28,10 @@ interface HealthPercentPageProps {
 const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
     const [data, setData] = useState<ParsedHealthData | undefined>();
     const [phaseValue, setPhaseValue] = useState<string>("");
-    const [phaseOptions, setPhaseOptions] = useState<[string, string][]>([]);
+    const [phaseOptions, setPhaseOptions] = useState<string[][]>([]);
+    const [breakbarPhaseOptions, setBreakbarPhaseOptions] = useState<
+        string[][]
+    >([]);
     const [tabValue, setTabValue] = useState<string>("total");
 
     // thresholdInput holds the raw input value (string)
@@ -41,8 +44,11 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
         [phaseValue, data]
     );
     const phaseDisplayValue = useMemo(
-        () => phaseOptions.find(([id]) => id === phaseValue)?.[1] || "",
-        [phaseValue, phaseOptions]
+        () =>
+            phaseOptions
+                .concat(breakbarPhaseOptions)
+                .find(([id]) => id === phaseValue)?.[1] || "",
+        [phaseValue, phaseOptions, breakbarPhaseOptions]
     );
 
     // Debounce and validate the threshold input
@@ -81,7 +87,14 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
         const healthData = extractHealthPercentages(json, threshold);
 
         setPhaseValue(healthData.phases?.[0].id || "");
-        setPhaseOptions(healthData.phases.map(({ id, name }) => [id, name]));
+        const dpsPhases = healthData.phases
+            .filter(item => !item.breakbarPhase)
+            .map(({ id, name }) => [id, name]);
+        const breakbarPhases = healthData.phases
+            .filter(item => item.breakbarPhase)
+            .map(({ id, name }) => [id, name]);
+        setPhaseOptions(dpsPhases);
+        setBreakbarPhaseOptions(breakbarPhases);
         setData(healthData);
     }, [json, threshold]);
 
@@ -141,6 +154,23 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
                                                 </Select.Item>
                                             ))}
                                         </Select.Group>
+                                        {breakbarPhaseOptions.length ? (
+                                            <Select.Group>
+                                                <Select.Label>
+                                                    Breakbar phases
+                                                </Select.Label>
+                                                {breakbarPhaseOptions.map(
+                                                    ([id, name]) => (
+                                                        <Select.Item
+                                                            value={id}
+                                                            key={id}
+                                                        >
+                                                            {name}
+                                                        </Select.Item>
+                                                    )
+                                                )}
+                                            </Select.Group>
+                                        ) : null}
                                     </Select.Content>
                                 </Select.Root>
                             </Flex>
