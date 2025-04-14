@@ -1,5 +1,5 @@
 export type TabItem = {
-    account: string;
+    value: string;
     name: string;
     profession: string | null;
     group: number | null;

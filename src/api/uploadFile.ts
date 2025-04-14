@@ -71,6 +71,30 @@ export function useGetLog<T = any>(
                     });
                 }
             };
+        } else if ((url || "").includes("/getJson?id=")) {
+            upload = async () => {
+                setUploadState({ data: null, isLoading: true, error: null });
+
+                try {
+                    const rawJson = await ky.get(url || "").json<T>();
+
+                    setUploadState({
+                        data: rawJson,
+                        isLoading: false,
+                        error: null,
+                    });
+                } catch (error) {
+                    console.error("Upload failed:", error);
+                    setUploadState({
+                        data: null,
+                        isLoading: false,
+                        error:
+                            error instanceof Error
+                                ? error
+                                : new Error("Upload failed"),
+                    });
+                }
+            };
         } else {
             upload = async () => {
                 setUploadState({ data: null, isLoading: true, error: null });

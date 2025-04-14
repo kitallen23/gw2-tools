@@ -28,7 +28,10 @@ interface HealthPercentPageProps {
 const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
     const [data, setData] = useState<ParsedHealthData | undefined>();
     const [phaseValue, setPhaseValue] = useState<string>("");
-    const [phaseOptions, setPhaseOptions] = useState<string[]>([]);
+    const [phaseOptions, setPhaseOptions] = useState<string[][]>([]);
+    const [breakbarPhaseOptions, setBreakbarPhaseOptions] = useState<
+        string[][]
+    >([]);
     const [tabValue, setTabValue] = useState<string>("total");
 
     // thresholdInput holds the raw input value (string)
@@ -37,8 +40,15 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
     const [threshold, setThreshold] = useState<number>(DEFAULT_THRESHOLD);
 
     const phase = useMemo(
-        () => data?.phases.find(phase => phase.name === phaseValue),
+        () => data?.phases.find(phase => phase.id === phaseValue),
         [phaseValue, data]
+    );
+    const phaseDisplayValue = useMemo(
+        () =>
+            phaseOptions
+                .concat(breakbarPhaseOptions)
+                .find(([id]) => id === phaseValue)?.[1] || "",
+        [phaseValue, phaseOptions, breakbarPhaseOptions]
     );
 
     // Debounce and validate the threshold input
@@ -76,8 +86,15 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
     useEffect(() => {
         const healthData = extractHealthPercentages(json, threshold);
 
-        setPhaseValue(healthData.phases?.[0].name || "");
-        setPhaseOptions(healthData.phases.map(({ name }) => name));
+        setPhaseValue(healthData.phases?.[0].id || "");
+        const dpsPhases = healthData.phases
+            .filter(item => !item.breakbarPhase)
+            .map(({ id, name }) => [id, name]);
+        const breakbarPhases = healthData.phases
+            .filter(item => item.breakbarPhase)
+            .map(({ id, name }) => [id, name]);
+        setPhaseOptions(dpsPhases);
+        setBreakbarPhaseOptions(breakbarPhases);
         setData(healthData);
     }, [json, threshold]);
 
@@ -124,19 +141,36 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
                                     <Select.Trigger
                                         style={{ maxWidth: "300px" }}
                                     >
-                                        <Text>{phaseValue}</Text>
+                                        <Text>{phaseDisplayValue}</Text>
                                     </Select.Trigger>
                                     <Select.Content>
                                         <Select.Group>
-                                            {phaseOptions.map((name, i) => (
+                                            {phaseOptions.map(([id, name]) => (
                                                 <Select.Item
-                                                    value={name}
-                                                    key={`${name}-${i}`}
+                                                    value={id}
+                                                    key={id}
                                                 >
                                                     {name}
                                                 </Select.Item>
                                             ))}
                                         </Select.Group>
+                                        {breakbarPhaseOptions.length ? (
+                                            <Select.Group>
+                                                <Select.Label>
+                                                    Breakbar phases
+                                                </Select.Label>
+                                                {breakbarPhaseOptions.map(
+                                                    ([id, name]) => (
+                                                        <Select.Item
+                                                            value={id}
+                                                            key={id}
+                                                        >
+                                                            {name}
+                                                        </Select.Item>
+                                                    )
+                                                )}
+                                            </Select.Group>
+                                        ) : null}
                                     </Select.Content>
                                 </Select.Root>
                             </Flex>
