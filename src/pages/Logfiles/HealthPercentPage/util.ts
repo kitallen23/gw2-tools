@@ -80,6 +80,14 @@ function calculateDurationAboveThreshold(
     return durationAboveThreshold;
 }
 
+/**
+ * Extracts and processes health percentage data for players across different phases.
+ * Calculates the duration and percentage of time each player spent above a specified health threshold during each phase.
+ *
+ * @param json - The raw health data object containing player and phase information.
+ * @param threshold - The health percentage threshold (e.g., 90 for 90%).
+ * @returns An object containing processed player data, phase-specific health data, and total duration.
+ */
 export function extractHealthPercentages(
     json: HealthData,
     threshold: number
@@ -162,6 +170,11 @@ export function extractHealthPercentages(
     };
 }
 
+/**
+ * Calculates the average health percentage and milliseconds above a threshold for a given phase.
+ * @param phase - The parsed phase object containing health data.
+ * @returns A tuple containing the average percentage above threshold and average milliseconds above threshold.
+ */
 export function getTotalAverageHealthAboveThreshold(
     phase: ParsedPhaseObject
 ): [number, number] {
@@ -181,6 +194,12 @@ export function getTotalAverageHealthAboveThreshold(
     return [totalPercentAboveThreshold / count, totalMSAboveThreshold / count];
 }
 
+/**
+ * Groups health data points by player subgroup.
+ * @param {ParsedHealthDataPoint[]} healthData - An array of health data points.
+ * @param {ParsedPlayerObject[]} players - An array of player objects containing group information.
+ * @returns {Record<number, ParsedHealthDataPoint[]>} - An object where keys are group IDs and values are arrays of health data points for that group.
+ */
 export function getSubgroupHealthData(
     healthData: ParsedHealthDataPoint[],
     players: ParsedPlayerObject[]
@@ -204,9 +223,14 @@ export function getSubgroupHealthData(
     return subgroups;
 }
 
-// Number 1: group number
-// Number 2: average time as percentage
-// Number 3: average time as milliseconds
+/**
+ * Calculates the average health metrics (percentage and milliseconds above threshold) for each subgroup.
+ * @param subgroups An object where keys are group numbers and values are arrays of parsed health data points.
+ * @returns An array of tuples, sorted by percentage above threshold (descending). Each tuple contains:
+ *          - Number 1: group number
+ *          - Number 2: average time as percentage above threshold
+ *          - Number 3: average time in milliseconds above threshold
+ */
 export function getSubgroupAverageHealthAboveThreshold(
     subgroups: Record<number, ParsedHealthDataPoint[]>
 ): [number, [number, number]][] {
