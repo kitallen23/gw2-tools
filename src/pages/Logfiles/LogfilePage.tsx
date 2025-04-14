@@ -133,7 +133,7 @@ function Logs() {
                         </Container>
                     ) : isLoading ? (
                         <Container size="2">
-                            <Progress duration="5s" />
+                            <Progress duration={url ? "0.5s" : "5s"} />
                         </Container>
                     ) : data ? (
                         toolType === "health-percent" ? (
