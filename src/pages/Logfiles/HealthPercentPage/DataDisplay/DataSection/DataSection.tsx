@@ -1,5 +1,5 @@
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { Flex, Grid, Strong, Text } from "@radix-ui/themes";
+import { Flex, Grid, Separator, Strong, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
 
 import * as styles from "../DataDisplay.css.ts";
@@ -36,6 +36,7 @@ const DataSection = ({ item, phase }: DataSectionProps) => {
                         {item.isPlayer ? "Time" : "Average time"} spent above
                         threshold: <Strong>{durationAboveThreshold}</Strong>
                     </Text>
+                    <Separator orientation="horizontal" size="4" />
                     <Text size="4">
                         {item.isPlayer ? "Percent" : "Average percent "} of time
                         spent above threshold:{" "}
