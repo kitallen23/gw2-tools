@@ -178,7 +178,7 @@ export function getTotalAverageHealthAboveThreshold(
         (dataSum, dataPoint) => dataSum + dataPoint.msAboveThreshold,
         0
     );
-    return [totalPercentAboveThreshold / count, totalMSAboveThreshold];
+    return [totalPercentAboveThreshold / count, totalMSAboveThreshold / count];
 }
 
 export function getSubgroupHealthData(
