@@ -140,6 +140,7 @@ const DataDisplay = ({
                     item={item}
                     phase={phase}
                     threshold={threshold}
+                    players={players}
                 />
             ))}
         </TabsPrimitive.Root>

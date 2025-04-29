@@ -15,7 +15,7 @@ import {
     ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
 
-import { PhaseObject } from "@/pages/Logfiles/HealthPercentPage/types";
+import { ParsedPhaseObject } from "@/pages/Logfiles/HealthPercentPage/types";
 import { formatDuration } from "@/pages/Logfiles/HealthPercentPage/util";
 
 const LINE_COLOR = "var(--purple-9)";
@@ -28,7 +28,7 @@ const FILL_DATA_KEY = "y_fill";
 interface SingleStepGraphProps {
     data: [number, number][];
     threshold: number;
-    phase: PhaseObject;
+    phase: ParsedPhaseObject;
 }
 
 const CustomTooltip = ({
@@ -131,6 +131,13 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
                     dot={false}
                     isAnimationActive={false}
                 />
+                <ReferenceLine
+                    y={threshold}
+                    stroke={COLOR_THRESHOLD}
+                    strokeDasharray="6 8"
+                    strokeWidth={1}
+                    ifOverflow="extendDomain"
+                />
                 {/* Area styled as a line (rendered on top) */}
                 <Area
                     dataKey={LINE_DATA_KEY}
@@ -142,13 +149,6 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
                     dot={false}
                     isAnimationActive={false}
                     connectNulls={true}
-                />
-                <ReferenceLine
-                    y={threshold}
-                    stroke={COLOR_THRESHOLD}
-                    strokeDasharray="6 8"
-                    strokeWidth={1}
-                    ifOverflow="extendDomain"
                 />
             </AreaChart>
         </ResponsiveContainer>
