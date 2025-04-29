@@ -20,6 +20,7 @@ interface TabNavigatorProps {
     players: ParsedPlayerObject[];
     phase: ParsedPhaseObject;
     value: string;
+    threshold: number;
     setValue: (value: string) => void;
 }
 
@@ -27,6 +28,7 @@ const DataDisplay = ({
     players,
     phase,
     value,
+    threshold,
     setValue,
 }: TabNavigatorProps) => {
     const tabs: TabItem[] = useMemo(() => {
@@ -133,7 +135,13 @@ const DataDisplay = ({
             </TabsPrimitive.List>
 
             {tabs.map((item: TabItem) => (
-                <DataSection key={item.value} item={item} phase={phase} />
+                <DataSection
+                    key={item.value}
+                    item={item}
+                    phase={phase}
+                    threshold={threshold}
+                    players={players}
+                />
             ))}
         </TabsPrimitive.Root>
     );
