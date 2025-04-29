@@ -96,7 +96,9 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
         setPhaseOptions(dpsPhases);
         setBreakbarPhaseOptions(breakbarPhases);
         setData(healthData);
-    }, [json, threshold]);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [json]);
 
     return (
         <>
@@ -205,6 +207,7 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
                             phase={phase}
                             value={tabValue}
                             setValue={setTabValue}
+                            threshold={threshold}
                         />
                     </Grid>
                 </Container>
