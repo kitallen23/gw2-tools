@@ -92,11 +92,10 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
         return processedData.map((point, i) => ({
             ...point,
             [FILL_DATA_KEY]:
-                point[FILL_DATA_KEY] < threshold
+                point[FILL_DATA_KEY] < threshold ||
+                processedData[i - 1]?.[FILL_DATA_KEY] < threshold
                     ? point[FILL_DATA_KEY]
-                    : processedData[i - 1]?.[FILL_DATA_KEY] < threshold
-                      ? point[FILL_DATA_KEY]
-                      : null,
+                    : null,
         }));
     }, [processedData, threshold]);
 
@@ -130,6 +129,7 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
                     strokeWidth={0}
                     dot={false}
                     isAnimationActive={false}
+                    connectNulls={false}
                 />
                 <ReferenceLine
                     y={threshold}
