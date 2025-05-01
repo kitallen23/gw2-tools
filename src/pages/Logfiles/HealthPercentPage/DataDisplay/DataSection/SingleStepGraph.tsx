@@ -89,14 +89,33 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
     }, [data, phase.end]);
 
     const partialFillData = useMemo(() => {
-        return processedData.map((point, i) => ({
-            ...point,
-            [FILL_DATA_KEY]:
-                point[FILL_DATA_KEY] < threshold ||
-                processedData[i - 1]?.[FILL_DATA_KEY] < threshold
-                    ? point[FILL_DATA_KEY]
-                    : null,
-        }));
+        const fillData = [];
+        for (let i = 0; i < processedData.length; ++i) {
+            const currentPoint = processedData[i];
+            let currentPointValue = null;
+            if (currentPoint[FILL_DATA_KEY] < threshold) {
+                currentPointValue = currentPoint[FILL_DATA_KEY];
+            }
+
+            const previousPoint = processedData[i - 1];
+
+            if (
+                previousPoint &&
+                previousPoint[FILL_DATA_KEY] < threshold &&
+                currentPoint[FILL_DATA_KEY] >= threshold
+            ) {
+                fillData.push({
+                    ...currentPoint,
+                    [FILL_DATA_KEY]: previousPoint[FILL_DATA_KEY],
+                });
+            }
+
+            fillData.push({
+                ...currentPoint,
+                [FILL_DATA_KEY]: currentPointValue,
+            });
+        }
+        return fillData;
     }, [processedData, threshold]);
 
     return (
@@ -130,6 +149,7 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
                     dot={false}
                     isAnimationActive={false}
                     connectNulls={false}
+                    activeDot={false}
                 />
                 <ReferenceLine
                     y={threshold}
