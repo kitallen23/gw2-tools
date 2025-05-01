@@ -18,8 +18,8 @@ import {
 import { ParsedPhaseObject } from "@/pages/Logfiles/HealthPercentPage/types";
 import { formatDuration } from "@/pages/Logfiles/HealthPercentPage/util";
 
-const LINE_COLOR = "var(--purple-9)";
-const AREA_FILL_COLOR = "var(--red-a5)";
+const LINE_COLOR = "var(--orange-9)";
+const AREA_FILL_COLOR = "var(--tomato-a5)";
 const COLOR_THRESHOLD = "var(--gray-12)";
 const LINE_DATA_KEY = "y_line";
 const FILL_DATA_KEY = "y_fill";
@@ -161,11 +161,10 @@ const SingleStepGraph = ({ data, threshold, phase }: SingleStepGraphProps) => {
                 {/* Area styled as a line (rendered on top) */}
                 <Area
                     dataKey={LINE_DATA_KEY}
-                    data={processedData}
                     type="stepAfter"
                     fill="transparent"
                     stroke={LINE_COLOR}
-                    strokeWidth={2}
+                    strokeWidth={1}
                     dot={false}
                     isAnimationActive={false}
                     connectNulls={true}
