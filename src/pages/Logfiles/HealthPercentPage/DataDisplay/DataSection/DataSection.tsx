@@ -21,14 +21,8 @@ interface DataSectionProps {
 }
 
 const DataSection = ({ item, phase, threshold, players }: DataSectionProps) => {
-    const phaseDuration = useMemo(
-        () => formatDuration(phase.end - phase.start),
-        [phase.end, phase.start]
-    );
-    const durationAboveThreshold = useMemo(
-        () => formatDuration(item.msAboveThreshold),
-        [item.msAboveThreshold]
-    );
+    const phaseDuration = formatDuration(phase.end - phase.start);
+    const durationAboveThreshold = formatDuration(item.msAboveThreshold);
 
     const singleUserGraphData: [number, number][] | null = useMemo(() => {
         if (item.isPlayer) {
