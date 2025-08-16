@@ -96,9 +96,7 @@ const HealthPercentPage = ({ json }: HealthPercentPageProps) => {
         setPhaseOptions(dpsPhases);
         setBreakbarPhaseOptions(breakbarPhases);
         setData(healthData);
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [json]);
+    }, [json, threshold]);
 
     return (
         <>

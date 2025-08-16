@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import FileField from "@/components/FileField/FileField";
 import {
     Box,
     Callout,
     Container,
-    Flex,
     Grid,
     Heading,
     Progress,
@@ -13,27 +11,43 @@ import {
     Text,
     TextField,
 } from "@radix-ui/themes";
-import { Form } from "radix-ui";
 import { useGetLog } from "@/api/uploadFile";
 
 import HealthPercentPage from "@/pages/Logfiles/HealthPercentPage/HealthPercentPage";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { useSearchParams } from "react-router-dom";
 
 type ToolType = "health-percent";
 const TOOL_TYPE_OPTIONS = { "health-percent": "Health Threshold Display" };
 const DEBOUNCE_MS = 500;
 const BASE_REPORT_URL = "https://dps.report/";
 
+function getSearchParamsUrl(searchParams: URLSearchParams) {
+    const queryUrl = searchParams.get("url");
+    if (queryUrl) {
+        if (
+            queryUrl.startsWith(BASE_REPORT_URL) &&
+            queryUrl.length > BASE_REPORT_URL.length
+        ) {
+            return queryUrl;
+        }
+    }
+    return "";
+}
+
 function Logs() {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+
     // reportUrl holds the raw input string
-    const [reportUrl, setReportUrl] = useState<string>("");
+    const [reportUrl, setReportUrl] = useState<string>(
+        getSearchParamsUrl(searchParams)
+    );
     // url holds a valid DPS report URL
-    const [url, setUrl] = useState<string>("");
+    const [url, setUrl] = useState<string>(getSearchParamsUrl(searchParams));
 
     const [toolType, setToolType] = useState<ToolType>("health-percent");
 
-    const { data, isLoading, error } = useGetLog(selectedFile, url);
+    const { data, isLoading, error } = useGetLog(url);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -43,7 +57,6 @@ function Logs() {
                 reportUrl.length > BASE_REPORT_URL.length
             ) {
                 setUrl(reportUrl);
-                setSelectedFile(null);
             }
         }, DEBOUNCE_MS);
 
@@ -52,22 +65,34 @@ function Logs() {
         };
     }, [reportUrl]);
 
+    useEffect(() => {
+        let validUrl;
+        if (
+            reportUrl.startsWith(BASE_REPORT_URL) &&
+            reportUrl.length > BASE_REPORT_URL.length
+        ) {
+            validUrl = reportUrl;
+        }
+
+        if (reportUrl && validUrl) {
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev);
+                newParams.set("url", validUrl);
+                return newParams;
+            });
+        } else {
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev);
+                newParams.delete("url");
+                return newParams;
+            });
+        }
+    }, [reportUrl, setSearchParams]);
+
     const handleReportUrlChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         setReportUrl(event.target.value);
-    };
-
-    const handleFileFieldChange = (acceptedFiles: File[]) => {
-        if (acceptedFiles.length) {
-            setSelectedFile(acceptedFiles[0]);
-            setReportUrl("");
-            setUrl("");
-        } else {
-            setSelectedFile(null);
-            setReportUrl("");
-            setUrl("");
-        }
     };
 
     return (
@@ -86,30 +111,6 @@ function Logs() {
                             onChange={handleReportUrlChange}
                             placeholder="Enter DPS report URL"
                         />
-
-                        <Flex justify="center" py="1">
-                            <Text
-                                style={{
-                                    color: "var(--gray-10)",
-                                }}
-                                size="1"
-                            >
-                                — or —
-                            </Text>
-                        </Flex>
-
-                        <Form.Root>
-                            <div
-                                style={{
-                                    margin: "0 auto",
-                                }}
-                            >
-                                <FileField
-                                    file={selectedFile}
-                                    onDrop={handleFileFieldChange}
-                                />
-                            </div>
-                        </Form.Root>
                     </Container>
 
                     {error ? (
